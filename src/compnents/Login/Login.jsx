@@ -6,12 +6,15 @@ import { initFlowbite } from "flowbite";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
-let schema = z.object({
-  email: z.email("enter valid email"),
+const schema = z.object({
+  email: z.string().email("Enter a valid email"),
   password: z
     .string()
-    .min(8, "password must be at least 8 characters long")
-    .regex("/^[a-zA-Z0-9]{8-30}/"),
+    .min(8, "Password must be at least 8 characters long")
+    .regex(
+      /^[a-zA-Z0-9]{8,30}$/,
+      "Password must be alphanumeric and 8-30 chars",
+    ),
 });
 export default function Login() {
   let navigate = useNavigate();
@@ -64,12 +67,17 @@ export default function Login() {
                 {...register("email")}
                 type="email"
                 id="email"
-                className="bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand block w-full px-3 py-2.5 shadow-xs placeholder:text-body"
+                className={`block w-full px-3 py-2.5 rounded-base border ${
+                  formState.errors.email
+                    ? "border-red-500"
+                    : "border-default-medium"
+                } bg-neutral-secondary-medium`}
                 placeholder="name@flowbite.com"
-                required
               />
               {formState.errors.email && (
-                <p className="text-red-500">{formState.errors.email.message}</p>
+                <p className="mt-1 text-xs text-red-500 font-medium">
+                  {formState.errors.email.message}
+                </p>
               )}
             </div>
             <div className="mb-5">
@@ -83,9 +91,12 @@ export default function Login() {
                 {...register("password")}
                 type="password"
                 id="password"
-                className="bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand block w-full px-3 py-2.5 shadow-xs placeholder:text-body"
+                className={`block w-full px-3 py-2.5 rounded-base border ${
+                  formState.errors.email
+                    ? "border-red-500"
+                    : "border-default-medium"
+                } bg-neutral-secondary-medium`}
                 placeholder="••••••••"
-                required
               />
               {formState.errors.password && (
                 <p className="text-red-500">
