@@ -4,7 +4,7 @@ import { z } from "zod";
 import { useEffect } from "react";
 import { initFlowbite } from "flowbite";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 let schema = z.object({
   email: z.email("enter valid email"),
   password: z
@@ -98,12 +98,12 @@ export default function Login() {
             >
               Submit
             </button>
-            <label htmlFor="remember" className="flex items-center mb-5">
+            <label htmlFor="remember" className="flex items-center pt-5 ">
               <p className="ms-2 text-sm font-medium text-heading select-none">
                 Do not have account{" "}
-                <a href="/register" className="text-fg-brand hover:underline">
+                <Link to="/register" className="text-fg-brand hover:underline">
                   register now
-                </a>
+                </Link>
               </p>
             </label>
           </form>
