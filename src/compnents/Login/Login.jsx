@@ -5,6 +5,7 @@ import { useEffect } from "react";
 import { initFlowbite } from "flowbite";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
+import { zodResolver } from "@hookform/resolvers/zod";
 let schema = z.object({
   email: z.email("enter valid email"),
   password: z
@@ -19,6 +20,7 @@ export default function Login() {
       email: "",
       password: "",
     },
+    resolver: zodResolver(schema),
   });
   useEffect(() => {
     initFlowbite();
