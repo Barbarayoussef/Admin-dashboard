@@ -109,6 +109,12 @@ export default function BlankLayout() {
               </NavLink>
             </li>
             <li>
+              <NavLink to="/brands" className={navItemStyles}>
+                <i className="fas fa-box-open w-5 text-center"></i>
+                <span className="ms-3">Brands</span>
+              </NavLink>
+            </li>
+            <li>
               <NavLink to="/products" className={navItemStyles}>
                 <i className="fas fa-box-open w-5 text-center"></i>
                 <span className="ms-3">Products</span>

@@ -29,6 +29,7 @@ export default function Subcategories() {
         },
       })
       .then((res) => {
+        console.log("sub", res.data.categories);
         setSubCategories(res.data.categories);
       })
       .catch((err) => {
@@ -43,7 +44,11 @@ export default function Subcategories() {
         },
       })
       .then((res) => {
+        console.log(res.data.categories);
+
         setCategories(res.data.categories);
+
+        console.log(categories);
       })
       .catch((err) => {
         console.log(err);
@@ -74,7 +79,7 @@ export default function Subcategories() {
       axios
         .put(
           `https://nti-ecommerce.vercel.app/api/v1/subCategories/${subcategoryInfo._id}`,
-          form,
+          form.name,
         )
         .then(() => {
           fetchSubcategories();
@@ -240,8 +245,18 @@ export default function Subcategories() {
                     {subCategory.name}
                   </th>
                   <td className="px-6 py-4 size-54 ">
-                    {categories.find((cat) => cat._id === subCategory.category)
-                      ?.name || "Loading..."}
+                    {(() => {
+                      const categoryId =
+                        typeof subCategory.category === "object"
+                          ? subCategory.category._id
+                          : subCategory.category;
+
+                      const foundCategory = categories.find(
+                        (cat) => cat._id === categoryId,
+                      );
+
+                      return foundCategory ? foundCategory.name : "N/A";
+                    })()}
                   </td>
                   <td className="px-6 py-4 flex items-center space-x-3">
                     <button
