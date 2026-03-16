@@ -60,7 +60,6 @@ export default function Categories() {
     setIsModalOpen(true);
   }
   function submitCategory(form) {
-    setIsModalOpen(false);
     // console.log(form);
     let formData = new FormData();
 
