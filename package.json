@@ -14,11 +14,13 @@
     "@tailwindcss/cli": "^4.2.1",
     "axios": "^1.13.6",
     "flowbite": "^4.0.1",
+    "formik": "^2.4.9",
     "generate-react-cli": "^11.0.3",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-hook-form": "^7.71.2",
     "tailwindcss": "^4.2.1",
+    "yup": "^1.7.1",
     "zod": "^4.3.6"
   },
   "devDependencies": {
