@@ -60,7 +60,6 @@ export default function Categories() {
     setIsModalOpen(true);
   }
   function submitCategory(form) {
-    
     // console.log(form);
     let formData = new FormData();
 
@@ -255,24 +254,22 @@ export default function Categories() {
                     />
                   </td>
                   <td className="px-6 py-4 flex items-center space-x-3">
+                    <button
+                      onClick={() => openModal(category)}
+                      className="text-blue-600 hover:text-blue-800 transition-colors duration-200"
+                      title="Edit Category"
+                    >
+                      <i className="fa-solid fa-pen-to-square text-lg"></i>
+                    </button>
 
-  <button
-    onClick={() => openModal(category)}
-    className="text-blue-600 hover:text-blue-800 transition-colors duration-200"
-    title="Edit Category"
-  >
-    <i className="fa-solid fa-pen-to-square text-lg"></i>
-  </button>
-
-  
-  <button
-    onClick={() => deleteCategory(category._id)}
-    className="text-red-600 hover:text-red-800 transition-colors duration-200"
-    title="Delete Category"
-  >
-    <i className="fa-solid fa-trash-can text-lg"></i>
-  </button>
-</td>
+                    <button
+                      onClick={() => deleteCategory(category._id)}
+                      className="text-red-600 hover:text-red-800 transition-colors duration-200"
+                      title="Delete Category"
+                    >
+                      <i className="fa-solid fa-trash-can text-lg"></i>
+                    </button>
+                  </td>
                 </tr>
               );
             })}
