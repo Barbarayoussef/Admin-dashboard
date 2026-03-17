@@ -1,8 +1,8 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
-import flowbite from "flowbite";
+import tailwindcss from "@tailwindcss/vite"; // Add this
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react(), flowbite],
+  plugins: [react(), tailwindcss()],
 });
