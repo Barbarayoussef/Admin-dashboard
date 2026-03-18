@@ -9,6 +9,7 @@ import Products from "./compnents/Products/Products";
 import Orders from "./compnents/Orders/Orders";
 import Brands from "./compnents/Brands/Brands";
 import Coupons from "./compnents/Coupons/Coupons";
+import Product from "./compnents/Product/Product";
 import { RouterProvider } from "react-router-dom";
 
 import "./App.css";
@@ -33,6 +34,7 @@ function App() {
         { path: "orders", element: <Orders /> },
         { path: "brands", element: <Brands /> },
         { path: "coupons", element: <Coupons /> },
+        { path: "product", element: <Product /> },
       ],
     },
   ]);

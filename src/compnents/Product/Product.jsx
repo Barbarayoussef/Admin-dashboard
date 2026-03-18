@@ -1,12 +1,11 @@
-import React, { use } from "react";
+import React from "react";
+import { useState } from "react";
 import { useEffect } from "react";
-import { useForm } from "react-hook-form";
+import axios from "axios";
+import { useLocation, useNavigate } from "react-router-dom";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import axios from "axios";
-import { initFlowbite } from "flowbite";
-import { Link } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
+import { useForm } from "react-hook-form";
 
 let schema = z.object({
   title: z.string().min(4, "Name must be at least 4 characters"),
@@ -19,12 +18,15 @@ let schema = z.object({
   stock: z.number().min(1, "Stock must be greater than 0"),
   images: z.array(z.any()).optional(),
 });
-export default function Products() {
-  let [isModalOpen, setIsModalOpen] = React.useState(false);
-  let [products, setProducts] = React.useState([]);
-  let [subCategories, setSubCategories] = React.useState([]);
-  let [categories, setCategories] = React.useState([]);
-  let [brands, setBrands] = React.useState([]);
+export default function Product() {
+  let { state } = useLocation();
+  let { product } = state || {};
+  let [subCategories, setSubCategories] = useState([]);
+  let [categories, setCategories] = useState([]);
+  let [brands, setBrands] = useState([]);
+  let [isModalOpen, setIsModalOpen] = useState(false);
+  let navigate = useNavigate();
+
   let { register, formState, handleSubmit, reset } = useForm({
     defaultValues: {
       title: "",
@@ -39,20 +41,22 @@ export default function Products() {
     },
     resolver: zodResolver(schema),
   });
-  function openModal() {
+
+  function openModal(product) {
     setIsModalOpen(true);
+    reset({
+      title: product.title,
+      price: product.price,
+      description: product.description,
+      category: product.category,
+      subcategory: product.subcategory,
+      brand: product.brand,
+      imageCover: product.imageCover,
+      stock: product.stock,
+      images: product.images,
+    });
   }
-  function fetchProducts() {
-    axios
-      .get("https://nti-ecommerce.vercel.app/api/v1/products")
-      .then((res) => {
-        console.log(res);
-        setProducts(res.data.Products);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  }
+
   function fetchCategories() {
     axios
       .get("https://nti-ecommerce.vercel.app/api/v1/categories", {
@@ -79,13 +83,6 @@ export default function Products() {
         console.log(err);
       });
   }
-
-  useEffect(() => {
-    fetchProducts();
-    fetchCategories();
-    fetchBrands();
-    initFlowbite();
-  }, []);
   const handleCategoryChange = async (e) => {
     const categoryId = e.target.value;
     if (!categoryId) {
@@ -103,57 +100,61 @@ export default function Products() {
       console.error("Error fetching subcategories:", error);
     }
   };
-  let navigate = useNavigate();
-  function viewProductDetails(product) {
-    navigate(`/product`, {
-      state: { product },
-    });
-  }
-  function submitProduct(form) {
-    console.log("hi");
-
+  useEffect(() => {
+    fetchCategories();
+    fetchBrands();
+  }, []);
+  function submitProduct(data) {
     let formData = new FormData();
-    console.log(form, "form");
-
-    formData.append("title", form.title);
-    formData.append("price", form.price);
-    formData.append("description", form.description);
-    formData.append("category", form.category);
-    formData.append("subcategory", form.subcategory);
-    formData.append("brand", form.brand);
-    if (form.imageCover) {
-      formData.append("imageCover", form.imageCover);
+    formData.append("title", data.title);
+    formData.append("price", data.price);
+    formData.append("description", data.description);
+    formData.append("category", data.category);
+    formData.append("subcategory", data.subcategory);
+    formData.append("brand", data.brand);
+    if (data.imageCover) {
+      formData.append("imageCover", data.imageCover);
     }
-    formData.append("stock", form.stock);
-    if (form.images && form.images.length > 0) {
-      for (let i = 0; i < form.images.length; i++) {
-        formData.append("images", form.images[i]);
+    formData.append("stock", data.stock);
+    if (data.images && data.images.length > 0) {
+      for (let i = 0; i < data.images.length; i++) {
+        formData.append("images", data.images[i]);
       }
     }
-
     axios
-      .post("https://nti-ecommerce.vercel.app/api/v1/products", formData)
-      .then(() => {
-        console.log(formData);
-        fetchProducts();
+      .put(
+        `https://nti-ecommerce.vercel.app/api/v1/products/${product._id}`,
+        formData,
+      )
+      .then((res) => {
+        console.log(res);
         setIsModalOpen(false);
       })
       .catch((err) => {
         console.log(err);
       });
   }
+  if (!product) {
+    return (
+      <div className="p-10 text-center">
+        No product data found. Please return to the product list.
+      </div>
+    );
+  }
+  function deleteProduct(id) {
+    axios
+      .delete(`https://nti-ecommerce.vercel.app/api/v1/products/${id}`)
+      .then((res) => {
+        navigate("/products");
+        console.log(res);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }
+
   return (
     <>
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold my-5">Products Control</h1>
-        <button
-          onClick={openModal}
-          type="button"
-          className="text-white bg-brand box-border border border-transparent hover:bg-brand-strong focus:ring-4 focus:ring-brand-medium shadow-xs font-medium leading-5 rounded-base text-sm px-4 py-2.5 focus:outline-none"
-        >
-          Add Product
-        </button>
-      </div>
       {isModalOpen && (
         <div
           id="product-modal"
@@ -405,108 +406,93 @@ export default function Products() {
           </div>
         </div>
       )}
-      <div className="relative overflow-x-auto bg-neutral-primary-soft shadow-xs rounded-base border border-default">
-        <table class="w-full text-sm text-left rtl:text-right text-body">
-          <thead class="text-sm text-body bg-neutral-secondary-soft border-b rounded-base border-default">
-            <tr>
-              <th scope="col" class="px-6 py-3 font-medium">
-                Title
-              </th>
-              <th scope="col" className="px-6 py-3 font-medium">
-                Price
-              </th>
-              <th scope="col" className="px-6 py-3 font-medium">
-                Description
-              </th>
-              <th scope="col" className="px-6 py-3 font-medium">
-                Stock
-              </th>
-              <th scope="col" className="px-6 py-3 font-medium">
-                Category
-              </th>
-              <th scope="col" className="px-6 py-3 font-medium">
-                Subcategory
-              </th>
-              <th scope="col" className="px-6 py-3 font-medium">
-                Brand
-              </th>
-              <th scope="col" className="px-6 py-3 font-medium">
-                Image Cover
-              </th>
-              <th scope="col" className="px-6 py-3 font-medium">
-                Images
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {products.map((product) => (
-              <tr
-                onClick={() => viewProductDetails(product)}
-                class="bg-neutral-primary border-b border-default"
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 bg-neutral-primary-soft p-6 rounded-base border border-default shadow-sm">
+          {/* --- LEFT SIDE: IMAGES --- */}
+          <div className="space-y-4">
+            {/* Main Cover Image */}
+            <div className="aspect-square overflow-hidden rounded-base border border-default bg-white">
+              <img
+                src={product.imageCover}
+                alt={product.title}
+                className="w-full h-full object-contain"
+              />
+            </div>
+
+            {/* Gallery Thumbnails */}
+            <div className="flex gap-4 overflow-x-auto pb-2">
+              {product.images?.map((img, idx) => (
+                <div
+                  key={idx}
+                  className="w-24 h-24 flex-shrink-0 border border-default rounded-base overflow-hidden bg-white hover:border-brand cursor-pointer transition-colors"
+                >
+                  <img src={img} className="w-full h-full object-cover" />
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* --- RIGHT SIDE: PRODUCT INFO --- */}
+          <div className="flex flex-col">
+            <nav className="text-sm mb-4 text-body">
+              <span>
+                Category :
+                {categories.find((c) => c._id === product.category)?.name}
+              </span>
+              <span className="mx-2">
+                Subcategory:{" "}
+                {subCategories.find((s) => s._id === product.subcategory)?.name}
+              </span>
+              <span className="text-brand font-medium">
+                {brands.find((b) => b._id === product.brand)?.name}
+              </span>
+            </nav>
+
+            <h1 className="text-3xl font-bold text-heading mb-2">
+              {product.title}
+            </h1>
+
+            <div className="flex items-center mb-6">
+              <span className="text-2xl font-semibold text-brand">
+                ${product.price}
+              </span>
+              <span
+                className={`ml-4 px-2.5 py-0.5 rounded-full text-xs font-medium ${product.stock > 0 ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}
               >
-                <td
-                  scope="row"
-                  class="px-6 py-4 font-medium text-heading whitespace-nowrap"
-                >
-                  {product.title}
-                </td>
-                <td
-                  scope="row"
-                  class="px-6 py-4 font-medium text-heading whitespace-nowrap"
-                >
-                  {product.price}
-                </td>
-                <td
-                  scope="row"
-                  class="px-6 py-4 font-medium text-heading whitespace-nowrap"
-                >
-                  {product.description}
-                </td>
-                <td
-                  scope="row"
-                  class="px-6 py-4 font-medium text-heading whitespace-nowrap"
-                >
-                  {product.stock}
-                </td>
-                <td
-                  scope="row"
-                  class="px-6 py-4 font-medium text-heading whitespace-nowrap"
-                >
-                  {categories.find((c) => c._id === product.category)?.name}
-                </td>
-                <td
-                  scope="row"
-                  class="px-6 py-4 font-medium text-heading whitespace-nowrap"
-                >
-                  {
-                    subCategories.find((c) => c._id === product.subcategory)
-                      ?.name
-                  }
-                </td>
-                <td
-                  scope="row"
-                  class="px-6 py-4 font-medium text-heading whitespace-nowrap"
-                >
-                  {brands.find((c) => c._id === product.brand)?.name}
-                </td>
-                <td
-                  scope="row"
-                  class="px-6 py-4 font-medium text-heading whitespace-nowrap"
-                >
-                  <img src={product.imageCover} alt="" />
-                </td>
-                <td
-                  scope="row"
-                  class="px-6 py-4 font-medium text-heading whitespace-nowrap"
-                >
-                  {product.images.map((image) => (
-                    <img src={image} alt="" />
-                  ))}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                {product.stock > 0
+                  ? `${product.stock} in stock`
+                  : "Out of stock"}
+              </span>
+            </div>
+
+            <div className="border-t border-default pt-6">
+              <h3 className="text-sm font-medium text-heading mb-4">
+                Description
+              </h3>
+              <p className="text-body leading-relaxed whitespace-pre-line">
+                {product.description}
+              </p>
+            </div>
+
+            <div className="mt-auto pt-10 flex gap-4">
+              <button
+                onClick={() => openModal(product)}
+                className="text-blue-600 hover:text-blue-800 transition-colors duration-200"
+                title="Edit product"
+              >
+                <i className="fa-solid fa-pen-to-square text-lg"></i>
+              </button>
+
+              <button
+                onClick={() => deleteProduct(product._id)}
+                className="text-red-600 hover:text-red-800 transition-colors duration-200"
+                title="Delete product"
+              >
+                <i className="fa-solid fa-trash text-lg"></i>
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     </>
   );
