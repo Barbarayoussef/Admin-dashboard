@@ -11,6 +11,8 @@ import Brands from "./compnents/Brands/Brands";
 import Coupons from "./compnents/Coupons/Coupons";
 import Product from "./compnents/Product/Product";
 import { RouterProvider } from "react-router-dom";
+import UserRoutes from "./compnents/UserRoutes/UserRoutes";
+import GuestRoutes from "./compnents/GuestRoutes/GuestRoutes";
 
 import "./App.css";
 
@@ -18,23 +20,94 @@ function App() {
   let routes = createBrowserRouter([
     {
       path: "/",
-      element: <AuthLayout />,
+      element: (
+        <GuestRoutes>
+          <AuthLayout />
+        </GuestRoutes>
+      ),
       children: [
-        { path: "login", element: <Login /> },
-        { path: "register", element: <Register /> },
+        {
+          path: "login",
+          element: (
+            <GuestRoutes>
+              <Login />
+            </GuestRoutes>
+          ),
+        },
+        {
+          path: "register",
+          element: (
+            <GuestRoutes>
+              <Register />{" "}
+            </GuestRoutes>
+          ),
+        },
       ],
     },
     {
       path: "/",
-      element: <BlankLayout />,
+      element: (
+        <UserRoutes>
+          <BlankLayout />
+        </UserRoutes>
+      ),
       children: [
-        { path: "categories", element: <Categories /> },
-        { path: "subcategories", element: <SubCategories /> },
-        { path: "products", element: <Products /> },
-        { path: "orders", element: <Orders /> },
-        { path: "brands", element: <Brands /> },
-        { path: "coupons", element: <Coupons /> },
-        { path: "product", element: <Product /> },
+        {
+          path: "categories",
+          element: (
+            <UserRoutes>
+              <Categories />
+            </UserRoutes>
+          ),
+        },
+        {
+          path: "subcategories",
+          element: (
+            <UserRoutes>
+              <SubCategories />
+            </UserRoutes>
+          ),
+        },
+        {
+          index: true,
+          element: (
+            <UserRoutes>
+              <Products />
+            </UserRoutes>
+          ),
+        },
+        {
+          path: "orders",
+          element: (
+            <UserRoutes>
+              <Orders />
+            </UserRoutes>
+          ),
+        },
+        {
+          path: "brands",
+          element: (
+            <UserRoutes>
+              <Brands />
+            </UserRoutes>
+          ),
+        },
+        {
+          path: "coupons",
+          element: (
+            <UserRoutes>
+              <Coupons />
+            </UserRoutes>
+          ),
+        },
+        {
+          path: "product",
+          element: (
+            <UserRoutes>
+              <Product />
+            </UserRoutes>
+          ),
+        },
       ],
     },
   ]);
